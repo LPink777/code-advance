@@ -1,23 +1,17 @@
-class MyObject {
-  constructor(data) {
-    this.data = data;
-    this.data[this.data.length - 2] = { value: 'Non-empty' };
-  }
+const memoize = fn =>
+  new Proxy(fn, {
+    cache: new Map(),
+    apply(target, thisArg, args) {
+      let cacheKey = args.toString();
+      if (!this.cache.has(cacheKey)) {
+        this.cache.set(cacheKey, target.apply(thisArg, args));
+      }
+      return this.cache.get(cacheKey);
+    }
+  });
 
-  firstNonEmptyItem() {
-    return this.data.find(v => !!v.value);
-  }
+const fibonacci = n => (n <= 1 ? 1 : fibonacci(n - 1) + fibonacci(n - 2));
+const memoizedFibonacci = memoize(fibonacci);
 
-  firstNonEmptyItemMemo() {
-    if (!this.firstNonEmpty)
-      this.firstNonEmpty = this.data.find(v => !!v.value);
-    return this.firstNonEmpty;
-  }
-}
-
-const myObject = new MyObject(Array(2000).fill({ value: null }));
-
-for (let i = 0; i < 100; i ++)
-  console.log('myObject.firstNonEmptyItem()', myObject.firstNonEmptyItem());       // ~4000ms
-for (let i = 0; i < 100; i ++)
-  myObject.firstNonEmptyItemMemo();   // ~70ms
+for (let i = 0; i < 100; i++) fibonacci(20);
+for (let i = 0; i < 100; i++) memoizedFibonacci(20);
