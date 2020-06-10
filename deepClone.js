@@ -1,16 +1,28 @@
-const deepClone = obj => {
+const deepClone = (obj) => {
   if (obj === null) return null;
-  let clone = Object.assign({}, obj);
-  Object.keys(obj).forEach(
-    key => (clone[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key])
-  )
-  return Array.isArray(obj) && obj.length
-          ? (clone.length = obj.length) && Array.from(clone)
-          : Array.isArray(obj)
-            ? Array.from(obj)
-            : clone;
-}
+  const clone = Object.assign({}, obj);
+  Object.entries(obj).forEach(
+    ([key, val]) =>
+      (clone[key] = typeof val === "object" ? deepClone(val) : val)
+  );
 
-const a = { foo: 'bar', obj: { a: { c: 1}, b: [{a: 1},2,3] } };
-const b = deepClone(a); // a !== b, a.obj !== b.obj
-console.log('b', b);
+  return Array.isArray(obj) && obj.length
+    ? (clone.length = obj.length) && Array.from(clone)
+    : Array.isArray(obj)
+    ? Array.from(obj)
+    : clone;
+};
+
+const obj = {
+  a: 1,
+  c: {
+    c1: 1,
+    c2: [22, 22, 22],
+  },
+};
+
+const obj1 = [1,2,3,4,4,{a: 1, b: {a: 1}}];
+
+const res = deepClone(obj);
+
+console.log('res', res);
